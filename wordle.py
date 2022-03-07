@@ -1,5 +1,4 @@
-from operator import contains
-from pickle import LIST
+
 import random;
 
 
@@ -109,7 +108,7 @@ def choose_secret_advanced(filename):
     """
     palabras = []
     selected = []
-    
+    acentos = ["á","é","í","ó","ú"]
     # abrir fichero en modo lectura
     f = open(filename,"r")
 
@@ -117,18 +116,22 @@ def choose_secret_advanced(filename):
     linea = f.readline()
 
     while linea!="":
-        # por cada linea quitar el salto de linea
-        palabras.append(linea[:len(linea)-1].upper())
+        
+        # comprobar si tiene acento
+        tiene_acento = False
+        for letra_acento in acentos:
+          if letra_acento in linea:
+            tiene_acento = True
+        
+        if not tiene_acento:
+          # por cada linea quitar el salto de linea
+          palabras.append(linea[:len(linea)-1].upper())
         linea = f.readline()
     f.close()
     
-    for palabra in palabras:
-      print(palabra)
-      print("ó" in palabra)
-
     # solo las de 5 letras y sin acentos
     palabras = list(filter(lambda x: len(x) == 5 ,palabras))
-
+    print(palabras)
     # control de excepciones ----------------------
     if len(palabras) < 15:
       raise ValueError("choose_secret_advanced Error: no hay 15 palabras de 5 letras sin acentos")
