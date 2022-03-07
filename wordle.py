@@ -68,12 +68,27 @@ def print_word(word,same_position, same_letter):
     Returns:
       transformed: La palabra aplicando las transformaciones. En el caso anterior: "Cam--"
     """
-    transformed = ""
-    cont = 0
+   
  
+    # control de excepciones ---------
     if type(same_position) != list or type(same_letter) != list:
       raise ValueError("print_word Error: same_position y same_letter deben ser listas")
 
+    for valor in same_position:
+      if valor >= len(word):
+        raise ValueError("print_word Error: hay un valor superior a la palabra en same_position")
+      elif valor < 0:
+        raise ValueError("print_word Error: hay un valor negativo en same_position")
+
+    for valor in same_letter:
+      if valor >= len(word):
+        raise ValueError("print_word Error: hay un valor superior a la palabra en same_letter")
+      elif valor < 0:
+        raise ValueError("print_word Error: hay un valor negativo en same_letter")
+
+    # funcionalidad ---------
+    transformed = ""
+    cont = 0
     for letra in word:
       if cont in same_letter:
         transformed = transformed + letra.lower()
@@ -94,7 +109,7 @@ def choose_secret_advanced(filename):
     """
     palabras = []
     selected = []
-    secret = ""
+    
     # abrir fichero en modo lectura
     f = open(filename,"r")
 
@@ -107,24 +122,50 @@ def choose_secret_advanced(filename):
         linea = f.readline()
     f.close()
     
-    palabras = list(filter(lambda x: len(x) ==5 ,palabras))
-    print(palabras)
-    return random.choice(palabras)
+    for palabra in palabras:
+      print(palabra)
+      print("ó" in palabra)
+
+    # solo las de 5 letras y sin acentos
+    palabras = list(filter(lambda x: len(x) == 5 ,palabras))
+
+    # control de excepciones ----------------------
+    if len(palabras) < 15:
+      raise ValueError("choose_secret_advanced Error: no hay 15 palabras de 5 letras sin acentos")
+
+    #seleccionar 15 sin repeticion
+    for i in range(0,15):
+      palabra = random.choice(palabras)
+      palabras.remove(palabra)
+      selected.append(palabra)
+
+    # devolver las 15 y una aleatoria de estas
+    return selected, random.choice(selected)
  
-def check_valid_word():
+def check_valid_word(selected):
     """Dada una lista de palabras, esta función pregunta al usuario que introduzca una palabra hasta que introduzca una que esté en la lista. Esta palabra es la que devolverá la función.
     Args:
       selected: Lista de palabras.
     Returns:
       word: Palabra introducida por el usuario que está en la lista.
     """
+    valid = True
+    word = ""
+    while valid:
+      word = input("Introduce una palabra: ")
+      if word in selected:
+        valid = False
+
+    return word
 
 if __name__ == "__main__":
     try:
-      secret=choose_secret("palabras_reduced.txt")
+      selected,secret=choose_secret_advanced("palabras_extended.txt")
+      print(selected)
       print("Palabra a adivinar: "+secret)#Debug: esto es para que sepas la palabra que debes adivinar
       for repeticiones in range(0,6):
-          word = input("Introduce una nueva palabra: ")
+          #word = input("Introduce una nueva palabra: ")
+          word = check_valid_word(selected)
           same_position, same_letter = compare_words(word,secret)
           resultado=print_word(word,same_position,same_letter)
           print(resultado)
